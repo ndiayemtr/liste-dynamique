@@ -6,9 +6,14 @@ use App\Entity\City;
 use App\Entity\Country;
 use App\Repository\CityRepository;
 use App\Repository\CountryRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints as Assert; 
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,10 +21,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(): Response
+    public function index(Request $request, EntityManagerInterface $em): Response
     {
         $form = $this->createFormBuilder()
-            ->add('name', TextType::class)
+            ->add('name', TextType::class,[
+                'constraints' => [
+                    new NotBlank(['message' => 'Veuillez entrer votre nom'])
+                ],
+            ])
             ->add('contry', EntityType::class, [
                 'placeholder' => 'Choice a country', 
                 'class' => Country::class,
@@ -38,9 +47,22 @@ class HomeController extends AbstractController
                             ->orderBy('c.name', 'ASC');
                 }
              ] )
-            ->add('message', TextareaType::class)
+            ->add('message', TextareaType::class, [
+                'constraints' => [
+                    new NotBlank(['message' => 'Veuillez entrer votre text']),
+                    new Length(['min' => 5])
+                ],
+            ])
             ->getForm();
 
+        
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            dd($form->getData());
+        }
+        
+        
         return $this->render('home.html.twig',['form' => $form->createView() ]);
     }
 }
