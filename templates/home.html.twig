@@ -7,7 +7,10 @@
     <div class="col-6 mx-auto">
     <h1 class="display-4 my-5 text-center"> Are you facing any   <span class="text-danger"> issues</span>??</h1>
         {{ form_start(form) }}
-            {{ form_widget(form) }}
+            {{ form_widget(form.name) }}
+            {{ form_widget(form.country) }}
+            {{ form_widget(form.city) }}
+            {{ form_widget(form.message) }}
             <button type="submit" class="btn btn-primary w-100">Envoyer</button>
             {{ form_end(form) }}
     </div>
